@@ -101,3 +101,22 @@ npm_rebuild() {
     echo "Skipping (no package.json)"
   fi
 }
+
+npm_unpack() {
+  local build_dir=${1:-}
+
+  if [ -e $build_dir/package.json ]; then
+    cd $build_dir
+    echo "Extracting node modules"
+    tar -xzf node_modules.tar.gz
+    if [ -e $build_dir/node_modules ]; then
+      echo "Rebuilding any native modules"
+      npm rebuild 2>&1
+    else
+      echo "Fallback to regular install (no node_modules)"
+      npm_node_modules "$build_dir"
+    fi
+  else
+    echo "Skipping (no package.json)"
+  fi
+}
