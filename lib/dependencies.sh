@@ -180,7 +180,6 @@ npm_rebuild() {
 
 npm_unpack() {
   local build_dir=${1:-}
-
   if [ -e $build_dir/package.json ]; then
     cd $build_dir
     echo "Extracting node modules"
@@ -194,6 +193,7 @@ npm_unpack() {
     fi
   else
     echo "Skipping (no package.json)"
+  fi
 }
 
 npm_prune_devdependencies() {
