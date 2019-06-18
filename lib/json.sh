@@ -1,25 +1,37 @@
-get_os() {
-  uname | tr A-Z a-z
-}
+#!/usr/bin/env bash
 
-get_cpu() {
-  if [[ "$(uname -p)" = "i686" ]]; then
-    echo "x86"
+JQ="$BP_DIR/vendor/jq-$(get_os)"
+
+read_json() {
+  local file="$1"
+  local key="$2"
+
+  if test -f "$file"; then
+    # shellcheck disable=SC2002
+    cat "$file" | $JQ --raw-output "$key // \"\"" || return 1
   else
-    echo "x64"
+    echo ""
   fi
 }
 
-os=$(get_os)
-cpu=$(get_cpu)
-export JQ="$BP_DIR/vendor/jq-$os"
+has_script() {
+  local file="$1"
+  local key="$2"
 
-read_json() {
-  local file=$1
-  local key=$2
-  if test -f $file; then
-    cat $file | $JQ --raw-output "$key // \"\"" || return 1
+  if test -f "$file"; then
+    # shellcheck disable=SC2002
+    cat "$file" | $JQ ".[\"scripts\"] | has(\"$key\")"
   else
-    echo ""
+    echo "false"
+  fi
+}
+
+is_invalid_json_file() {
+  local file="$1"
+  # shellcheck disable=SC2002
+  if ! cat "$file" | $JQ "." 1>/dev/null; then
+    echo "true"
+  else
+    echo "false"
   fi
 }
